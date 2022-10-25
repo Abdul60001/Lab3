@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Lab3</string>
+    <string name="product_price" />
+    <string name="product_name" />
+    <string name="productid" />
+    <string name="add" />
+    <string name="find" />
+    <string name="delete" />
+</resources>
