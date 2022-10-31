@@ -19,7 +19,7 @@ public class MyDBHandler extends SQLiteOpenHelper {
     }
     @Override
     public void onCreate(SQLiteDatabase db) { //Create table with SQL COMMANDES
-        String create_table_cmd="CREATE TABLE "+ TABLE_NAME+ "("+COLUMN_ID+"INTEGER PRIMARY KEY, " +COLUMN_PRODUCT_NAME+" TEXT,"+COLUMN_PRODUCT_PRICE+" DOUBLE "+")";
+        String create_table_cmd="CREATE TABLE "+ TABLE_NAME+ "("+COLUMN_ID+" INTEGER PRIMARY KEY, " +COLUMN_PRODUCT_NAME+" TEXT, "+COLUMN_PRODUCT_PRICE+" DOUBLE "+");";
         db.execSQL(create_table_cmd);
     }
 
@@ -48,16 +48,25 @@ public class MyDBHandler extends SQLiteOpenHelper {
 
     public void deleteProduct(Product product){
         SQLiteDatabase db=this.getWritableDatabase();
-        db.delete(COLUMN_PRODUCT_NAME,product.getProductName(),null);
+        db.delete(TABLE_NAME, COLUMN_PRODUCT_NAME + "=?", new String[] {product.getProductName()});
         db.close();
-
     }
 
-    public Cursor findProduct(Product product){
+    public Cursor findProductByName(Product product){
         SQLiteDatabase db=this.getReadableDatabase();
-        String name="Select * from"+TABLE_NAME+"WHERE"+COLUMN_PRODUCT_NAME+"LIKE"+product;
-        String Price="Select * from"+TABLE_NAME+"WHERE"+COLUMN_PRODUCT_PRICE+"LIKE"+product;
-        Cursor cursor=db.rawQuery(name,null);
+        Cursor cursor=db.rawQuery("Select * from "+TABLE_NAME+" WHERE "+COLUMN_PRODUCT_NAME+"=?", new String[]{product.getProductName()});
+        return cursor;
+    }
+
+    public Cursor findProductByPrice(Product product){
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery("Select * from "+TABLE_NAME+" WHERE "+COLUMN_PRODUCT_PRICE+"=?", new String[]{String.valueOf(product.getProductPrice())});
+        return cursor;
+    }
+
+    public Cursor findProductByNameAndPrice(Product product){
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery("Select * from "+TABLE_NAME+" WHERE "+COLUMN_PRODUCT_NAME+"=? AND "+COLUMN_PRODUCT_PRICE+"=?", new String[]{product.getProductName(), String.valueOf(product.getProductPrice())});
         return cursor;
     }
 }

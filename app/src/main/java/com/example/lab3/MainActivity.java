@@ -30,9 +30,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         productList=new ArrayList<>();
         //Layout information
-        productId = findViewById(R.id.productId);
-        productName = findViewById(R.id.productName);
-        productPrice = findViewById(R.id.productPrice);
+        productId = findViewById(R.id.textView2);
+        productName = findViewById(R.id.editTextTextPersonName3);
+        productPrice = findViewById(R.id.editTextTextPersonName4);
 
         //Buttons information
         addBtn = findViewById(R.id.addBtn);
@@ -41,6 +41,10 @@ public class MainActivity extends AppCompatActivity {
 
         //ListView
         productListView=findViewById(R.id.productListView);
+
+        dbHandler = new MyDBHandler(this);
+
+        viewProducts(dbHandler.getData());
 
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,33 +56,63 @@ public class MainActivity extends AppCompatActivity {
                 productName.setText("");
                 productPrice.setText("");
 
-            //    Toast.makeText(MainActivity.this, "Add product", Toast.LENGTH_SHORT).show();
-                viewProducts();
+                viewProducts(dbHandler.getData());
             }
         });
 
         findBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Find product", Toast.LENGTH_SHORT).show();
+                String name=productName.getText().toString();
+                String priceString=productPrice.getText().toString();
+                Cursor cursor;
+                double price;
+
+                if (!name.equals("") && !priceString.equals("")) {
+                    price=Double.parseDouble(priceString);
+                    Product product = new Product(name, price);
+                    cursor = dbHandler.findProductByNameAndPrice(product);
+                }
+                else if (!name.equals("")) {
+                    price=0;
+                    Product product = new Product(name, price);
+                    cursor = dbHandler.findProductByName(product);
+                }
+                else if(!priceString.equals("")) {
+                    price=Double.parseDouble(priceString);
+                    Product product =new Product(name,price);
+                    cursor = dbHandler.findProductByPrice(product);
+                }
+                else {
+                    cursor=dbHandler.getData();
+                }
+
+                productName.setText("");
+                productPrice.setText("");
+
+                viewProducts(cursor);
             }
         });
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Delete product", Toast.LENGTH_SHORT).show();
+                String name=productName.getText().toString();
+                double price=Double.parseDouble(productPrice.getText().toString());
+                Product product =new Product(name,price);
+
+                dbHandler.deleteProduct(product);
+                productName.setText("");
+                productPrice.setText("");
+                viewProducts(dbHandler.getData());
             }
         });
 
-       MyDBHandler dbHandler= new MyDBHandler(this);
-
-        viewProducts();
     }
 
-    private void viewProducts() {
+    private void viewProducts(Cursor cursor) {
         productList.clear();
-        Cursor cursor=dbHandler.getData();    //Cursor to go
+//        Cursor cursor=dbHandler.getData();    //Cursor to go
         if(cursor.getCount()==0) {
             Toast.makeText(MainActivity.this, "Nothing to show", Toast.LENGTH_SHORT).show();
         }
